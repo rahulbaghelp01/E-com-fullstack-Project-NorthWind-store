@@ -12,6 +12,7 @@ import keepAliveCron from "./lib/cron";
 
 import meRouter from "./routes/meRouter";
 import productRouter from "./routes/meRouter";
+import streamRouter from "./routes/streamRouter";
   
 
 
