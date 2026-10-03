@@ -2,7 +2,7 @@ import express from "express";
 import "dotenv/config"
 import cors from "cors"
 
-import fs  from "node:fs";
+import fs from "node:fs";
 import path from "node:path";
 
 import { clerkMiddleware } from "@clerk/express";
@@ -14,7 +14,11 @@ import meRouter from "./routes/meRouter";
 import productRouter from "./routes/meRouter";
 import streamRouter from "./routes/streamRouter";
 import checkoutRouter from "./routes/checkoutRouter";
-import { polarWebhookHandler } from "./webhooks/polar";  
+import { polarWebhookHandler } from "./webhooks/polar";
+
+
+import * as Sentry from "@sentry/node";
+import { sentryClerkUserMiddleware } from "./middleware/sentryclerkuser";
 
 
 
@@ -42,15 +46,16 @@ app.post("/webhooks/polar", rawJson, (req, res) => {
 app.use(express.json())
 app.use(cors());
 app.use(clerkMiddleware());
+app.use(sentryClerkUserMiddleware); 
 
-app.get("/health",(_req, res)=>{
-  res.json({ok:true})
+app.get("/health", (_req, res) => {
+  res.json({ ok: true })
 })
 
-app.use("/api/me",meRouter);
-app.use("api/products",productRouter);
-app.use("api/stream",streamRouter);
-app.use("./api/checkout",checkoutRouter) 
+app.use("/api/me", meRouter);
+app.use("api/products", productRouter);
+app.use("api/stream", streamRouter);
+app.use("./api/checkout", checkoutRouter)
 
 
 const publicDir = path.join(process.cwd(), "public");
@@ -75,10 +80,25 @@ if (fs.existsSync(publicDir)) {
 }
 
 
-  app.listen(env.PORT, () => {
-    console.log("listening on this port:", env.PORT)
+// sentry will be attached to the response object
+Sentry.setupExpressErrorHandler(app);
 
-    if(env.NODE_ENV === "production"){
+app.use(
+  (_err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    const sentryId = (res as express.Response & { sentry?: string }).sentry;
+
+    res.status(500).json({
+      error: "Internal server error",
+      ...(sentryId !== undefined && { sentryId }),
+    });
+  },
+);
+
+
+app.listen(env.PORT, () => {
+  console.log("listening on this port:", env.PORT)
+
+  if (env.NODE_ENV === "production") {
     keepAliveCron.start()
-    }
-  });              
+  }
+});              
