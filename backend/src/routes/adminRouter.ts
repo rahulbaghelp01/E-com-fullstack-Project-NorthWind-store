@@ -1,5 +1,5 @@
 import {Router} from "express";
-import { createAdminProduct, getImageKitAuth, requireAdmin, updateAdminProduct, } from "../controllers/adminController.js";
+import { createAdminProduct, deleteAdminProduct, getImageKitAuth, requireAdmin, updateAdminProduct, } from "../controllers/adminController.js";
 import { listAdminProducts } from "./streamRouter.js";
 
 const router = Router();
