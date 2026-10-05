@@ -1,16 +1,14 @@
-import type { Request, Response, NextFunction } from "express";
 import { getAuth } from "@clerk/express";
-import { getLocalUser} from "../lib/users";
+import type { Request, Response, NextFunction } from "express";
+import { getLocalUser } from "../lib/users";
 import { isAdmin } from "../lib/roles";
-
-import {getEnv} from "../lib/env.js";
-import { ImageKit } from "@imagekit/nodejs/client.mjs";
-import { z } from "zod";
-import { products } from "../db/schema";
-import { eq } from "drizzle-orm/sql/expressions/conditions";
+import ImageKit from "@imagekit/nodejs";
+import { getEnv } from "../lib/env";
 import { db } from "../db";
+import { orderItems, products } from "../db/schema";
+import { count, desc, eq } from "drizzle-orm";
+import { z } from "zod";
 import { deleteImageKitAsset } from "../lib/imagekit";
-
 
 const env = getEnv();
 
@@ -47,7 +45,6 @@ function buildProductUpdateSet(body: z.infer<typeof productPatch>) {
   return data;
 }
 
-
 export async function requireAdmin(req: Request, res: Response, next: NextFunction) {
   try {
     const { userId, isAuthenticated } = getAuth(req);
@@ -78,6 +75,15 @@ export function getImageKitAuth(_req: Request, res: Response, next: NextFunction
       publicKey: env.IMAGEKIT_PUBLIC_KEY,
       urlEndpoint: env.IMAGEKIT_URL_ENDPOINT,
     });
+  } catch (e) {
+    next(e);
+  }
+}
+
+export async function listAdminProducts(_req: Request, res: Response, next: NextFunction) {
+  try {
+    const rows = await db.select().from(products).orderBy(desc(products.createdAt));
+    res.json({ products: rows });
   } catch (e) {
     next(e);
   }
