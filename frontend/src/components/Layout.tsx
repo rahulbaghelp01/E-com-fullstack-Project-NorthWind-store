@@ -1,8 +1,9 @@
+import type { ReactNode } from "react";
 import { Footer } from "./Footer"
 import Navbar from "./Navbar"
 
 
-function Layout({children} ){
+function Layout({children}: { children: ReactNode }) {
     return (
         <div className="flex min-h-svh flex-col bg-base-20 text-base-content ">
            <Navbar />

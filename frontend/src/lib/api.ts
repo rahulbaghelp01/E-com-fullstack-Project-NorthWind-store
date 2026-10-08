@@ -7,7 +7,7 @@ type ApiFetchOptions = {
   method?: string;
   body?: unknown;
 };
-
+ 
 // this is an authenticated fetch req that we use to send reqs to our api
 export async function apiFetch(path: string, opts: ApiFetchOptions = {}): Promise<any> {
   const { getToken, method = "GET", body } = opts;

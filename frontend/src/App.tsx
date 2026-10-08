@@ -5,9 +5,9 @@ import Layout from './components/Layout';
  
 
 function App() {
-   const isLaoded = useAuth();
+   const { isLoaded } = useAuth();
 
-   if (!isLaoded){ 
+   if (!isLoaded){ 
     return <PageLoader />
    }
 
@@ -23,8 +23,7 @@ function App() {
           <UserButton />
         </Show>
       </header>
-      <p className="text-lg text-gray-600">Welcome to your app!</p>
-      <button className="btn btn-primary">Touch me</button>
+       
     </Layout>
      
   );
