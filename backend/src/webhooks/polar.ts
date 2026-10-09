@@ -90,7 +90,7 @@ export async function polarWebhookHandler(req: Request, res: Response) {
     }
 
     const raw = req.body instanceof Buffer ? req.body : Buffer.from(String(req.body));
-    const wh = new Webhook(Buffer.from(env.POLAR_WEBHOOK_SECRET, "utf8").toString("base64"));
+    const secret = env.POLAR_WEBHOOK_SECRET.trim();
 
     const id = headerString(req.headers, "webhook-id");
     const ts = headerString(req.headers, "webhook-timestamp");
@@ -101,7 +101,31 @@ export async function polarWebhookHandler(req: Request, res: Response) {
       return;
     }
 
-    wh.verify(raw, { "webhook-id": id, "webhook-timestamp": ts, "webhook-signature": sig });
+    const headers = {
+      "webhook-id": id,
+      "webhook-timestamp": ts,
+      "webhook-signature": sig,
+    };
+
+    try {
+      new Webhook(secret).verify(raw, headers);
+    } catch (standardError) {
+      try {
+        // Polar's legacy scheme uses the UTF-8 secret bytes as the HMAC key.
+        new Webhook(Buffer.from(secret, "utf8").toString("base64")).verify(raw, headers);
+      } catch (legacyError) {
+        console.error("[polar webhook] signature verification failed", {
+          standardError:
+            standardError instanceof Error ? standardError.message : String(standardError),
+          legacyError:
+            legacyError instanceof Error ? legacyError.message : String(legacyError),
+        });
+        res.status(400).json({ error: "Invalid webhook signature" });
+        return;
+      }
+    }
+
+    console.log("[polar webhook] signature verified");
 
     const event = JSON.parse(raw.toString("utf8")) as {
       type: string;
@@ -146,7 +170,7 @@ export async function polarWebhookHandler(req: Request, res: Response) {
     res.json({ ok: true });
     
   } catch (err) {
-    console.error("Polar webhook error", err);
-    res.status(400).json({ error: "Invalid webhook" });
+    console.error("[polar webhook] processing failed", err);
+    res.status(500).json({ error: "Webhook processing failed" });
   }
 }
