@@ -1,7 +1,9 @@
  
- import { SignInButton,Show,UserButton,SignUpButton,useAuth } from '@clerk/react'
+ import {useAuth } from '@clerk/react'
 import PageLoader from './components/pageloader';
 import Layout from './components/Layout';
+import { Route, Routes } from 'react-router';
+import HomePage from './Pages/HomePage';
  
 
 function App() {
@@ -13,17 +15,10 @@ function App() {
 
   return (
    
-     <Layout>
-      <header>
-        <Show when="signed-out">
-          <SignInButton mode='modal' />
-          <SignUpButton mode='modal' />
-        </Show>
-        <Show when="signed-in">
-          <UserButton />
-        </Show>
-      </header>
-       
+   <Layout>
+       <Routes>
+        <Route path="/" element={<HomePage />} />
+       </Routes>
     </Layout>
      
   );
