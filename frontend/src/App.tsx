@@ -7,6 +7,7 @@ import HomePage from './Pages/HomePage';
 import CartPage from './Pages/CartPage';
 import OrdersPage from './Pages/OrdersPage';
 import CheckoutReturnPage from './Pages/CheckoutReturnPage';
+import ProductDetailPage from './Pages/ProductDetailPage';
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/orders" element={isSignedIn ? <OrdersPage /> : <Navigate to={"/"} />} />
         <Route path="/checkout/return" element={<CheckoutReturnPage />} />
+         <Route path="/product/:slug" element={<ProductDetailPage />} />
       </Routes>
     </Layout>
 
