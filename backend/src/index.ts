@@ -39,13 +39,7 @@ app.post("/webhooks/clerk", rawJson, (req, res) => {
 });
 
 app.post("/webhooks/polar", rawJson, (req, res) => {
-  console.log("[polar webhook] request received", {
-    method: req.method,
-    path: req.originalUrl,
-    contentType: req.get("content-type"),
-    bodyBytes: Buffer.isBuffer(req.body) ? req.body.length : undefined,
-  });
-
+   
   void polarWebhookHandler(req, res);
 });
 
