@@ -12,6 +12,7 @@ import { SentryDemoPage } from './Pages/SentryDemoPage';
 import OrderSummaryPage from './Pages/OrderSummaryPage';
 import OrderDetailPage from './Pages/OrderDetailPage';
 import OrderChatPage from './Pages/OrderChatPage';
+import OrderVideoPage from './Pages/OrderVideoPage';
 
 
 function App() {
@@ -34,6 +35,10 @@ function App() {
         <Route path="/orders/:id" element={<OrderDetailPage />}>
           <Route index element={<OrderSummaryPage />} />
           <Route path="chat" element={<OrderChatPage />} />
+          <Route
+            path="call"
+            element={isSignedIn ? <OrderVideoPage /> : <Navigate to="/orders" replace />}
+          />
         </Route>
       </Routes>
     </Layout>
