@@ -39,3 +39,5 @@ I followed a tutorial to learn how these technologies work together and how to i
 ## Status
 
 **Completed** — built as a learning project by following a tutorial.
+
+thanks for coming
